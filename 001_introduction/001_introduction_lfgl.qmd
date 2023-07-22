@@ -1,6 +1,7 @@
 ---
-title: Include a title here
-author: Include your name here
+title: Introduction
+author: Luis Francisco Gomez Lopez
+date: 2023-07-22
 format: 
   beamer:
     theme: AnnArbor
@@ -35,115 +36,110 @@ editor: visual
 #| echo: false
 #| output: false
 #| warning: false
-#| error: false
-# This is a r code chunk where you load libraries
-# The name of the chunk is r_libraries
-# The options specified as #| are execute options 
+#| error: false 
 library(tidyverse)
-library(kableExtra)
-library(reticulate)
-```
-
-```{python py_modules}
-#| eval: true
-#| echo: false
-#| output: false
-#| warning: false
-#| error: false
-# This is a python code chunk where you load modules
-# The name of the chunk is py_libraries
-# The options specified as #| are execute options 
-import numpy as np
 ```
 
 # Contents
 
--   Heading 1
--   Heading 2
--   Heading 3
--   Heading 4
--   Heading 5
+-   What you will learn
+-   What you would not learn
 -   References
 
-# Heading 1
+# What you will learn
 
--   According to bla, bla, bla [@wickham_r_2023]
+![What you will learn [@wickham_r_2023, figure 1.1]](../000_images/001_data_science.png){#fig-001_data_science width="400" height="400"}
 
-    -   The citation use the file *r_for_data_science_2_edition_umng.bib*
-    -   The citation applies the apa style with the file *apa.csl*
+# What you will learn
+
+-   **Import**
+
+    -   Take data store outside R and load it into R
     
--   This is an **inline** r code
+        -   Files
+        -   Databases
+        -   Web APIs[^1]
+        
+[^1]: Application programming interface
+    
+# What you will learn[^2]
+    
+-   **Tidy** [@wickham_tidy_2014]
 
-    -   My age is `r year(today(tzone = 'America/Bogota')) - year(ymd('1986-05-06',tz = 'America/Bogota'))` years
+    -   **Data structure**: rectangular tables made up of *rows* and *columns* where every value belongs to a variable and an observation
+    
+        -   Each variable forms a column
+        -   Each observation forms a row
+        -   Every cell is a single value
+        -   Each type of observational unit forms a table
 
-# Heading 2
+-   **Transform**
 
-- This is a table using `kableExtra`:
+    -   Narrowing in on observations of interest
+    -   Creating new variables
+    -   Calculating a set of summary statistics
 
-```{r table}
-#| eval: true
-#| echo: false
-#| output: true
-economics |>
-  head(n=5) |>
-  kbl(format = 'latex', booktabs = TRUE, 
-      col.names = c('Date', 'Consumption', 'Population',
-                    'Saving rate', 'Unemployment', 'Unemployed'),
-      caption = 'US economic time series') |>
-  kable_styling(latex_options = 'striped', font_size = 7) |>
-  row_spec(row=0, bold=TRUE) |>
-  column_spec(1, bold = TRUE, color = "red")
-```
+[^2]: Tidying and transforming are called **wrangling**
 
-# Heading 3
+# What you will learn
 
--   This is a simple plot using `ggplot2`:
+-   Main engines of knowledge generation
 
-```{r plot}
-#| out-width: '70%'
-#| fig-align: 'center'
-economics |>
-  ggplot() + 
-  geom_line(aes(x=date, y=pce)) + 
-  labs(x='Year',
-       y='Billions of dollars',
-       title = 'Personal consumption expenditures')
-```
+    -   **Visualization**
+    
+        -   Show things not expected
+        -   Raise new questions
+        -   Identify if you are asking the wrong question
+        -   Identify if you need to collect different data
+        -   Don't scale well because it requires human brains
+    
+    -   **Models**
+    
+        -   You need to have clearly defined precise questions
+        -   They scale well because are mathematical and computational tools so they require computers
+        -   They are based on assumptions so they cannot question its own assumptions
+        
+# What you will learn
 
-# Heading 4
+-   **Communication**
 
--   This is a R code chunk
+    -   Make others understand your results
+    
+# What you will learn
 
-```{r chunk}
-#| echo: true
-# Using R as a calculator
-result <- 2 + 3
-result
-```
+-   **Programming**
 
--   This is a Python code chunk
+    -   Use in nearly every part of a data science project
+    -   You don’t need to be an expert programmer becuase you are a data scientist not a programmer
+    -   However, learning more about programming pays off because becoming a better programmer allows you to automate common tasks and solve new problems
+    
+# What you will learn
 
-```{python}
-#| echo: true
-#  Creating a numpy array
-np_array = np.array([*range(1,4)])
-np_array
-```
+-   **80/20 rule**
 
-# Heading 5
+    -   You can tackle about 80% of every data science project using the tools you will learn
+    -   You will need other tools to tackle the remaining 20%
+    
+# What you would not learn
 
--   From R to Python
+-   **Modeling**
 
-```{python}
-#| echo: true
-np_array + r.result
-```
+    -   Use [`tidymodels`](https://www.tidymodels.org/)  
+    
+        -   The tidymodels framework is a collection of packages for modeling and machine learning using tidyverse principles
+        -    *Tidy Modeling with R* [@kuhn_tidy_2022]
+        
+-   **Big data**
 
--   From Python to R
+    -   If you are using large data (10GB - 100GB) learn [`data.table`](https://rdatatable.gitlab.io/data.table/)
 
-```{r}
-#| echo: true
-py$np_array + result
-```
+-   **Python, Julia, and friends**
+
+    -   Data science teams use a mix of languages
+    -   If you learn one programming language it will be easy to learn other programming languages but first learn at least one well 
+    -   For python start with:
+    
+        -   *Python for Data Analysis 3 edition* [@mckinney_python_2022]
+        -   *Python Data Science Handbook 2 edition* [@vanderplas_python_2023]
 
 # References {.allowframebreaks}
