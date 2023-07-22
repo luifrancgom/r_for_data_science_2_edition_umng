@@ -1,6 +1,7 @@
 ---
 title: Include a title here
 author: Include your name here
+date: 2023-07-22
 format: 
   beamer:
     theme: AnnArbor
@@ -115,7 +116,7 @@ economics |>
 
 -   This is an image
 
-![What you will learn [@wickham_r_2023, figure 1.1]](../000_images/001_data_science.png){#fig-001_data_science width=300 height=300}
+![What you will learn [@wickham_r_2023, figure 1.1]](../000_images/001_data_science.png){#fig-001_data_science width="300" height="300"}
 
 -   This is illustrated well by @fig-001_data_science
 
