@@ -1,0 +1,149 @@
+---
+title: Include a title here
+author: Include your name here
+format: 
+  beamer:
+    theme: AnnArbor
+    colortheme: dolphin
+    fonttheme: structurebold
+    link-citations: true
+    linkcolor: blue
+    include-in-header:
+      - text: |
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{multirow}
+          \usepackage{wrapfig}
+          \usepackage{float}
+          \usepackage{colortbl}
+          \usepackage{pdflscape}
+          \usepackage{tabu}
+          \usepackage{threeparttable}
+          \usepackage{threeparttablex}
+          \usepackage[normalem]{ulem}
+          \usepackage{makecell}
+          \usepackage{xcolor}
+lang: en
+bibliography: ../r_for_data_science_2_edition_umng.bib
+csl: ../apa.csl
+editor: visual
+---
+
+```{r r_libraries}
+#| eval: true
+#| echo: false
+#| output: false
+#| warning: false
+#| error: false
+# This is a r code chunk where you load libraries
+# The name of the chunk is r_libraries
+# The options specified as #| are execute options 
+library(tidyverse)
+library(kableExtra)
+library(reticulate)
+```
+
+```{python py_modules}
+#| eval: true
+#| echo: false
+#| output: false
+#| warning: false
+#| error: false
+# This is a python code chunk where you load modules
+# The name of the chunk is py_libraries
+# The options specified as #| are execute options 
+import numpy as np
+```
+
+# Contents
+
+-   Heading 1
+-   Heading 2
+-   Heading 3
+-   Heading 4
+-   Heading 5
+-   References
+
+# Heading 1
+
+-   According to bla, bla, bla [@wickham_r_2023]
+
+    -   The citation use the file *r_for_data_science_2_edition_umng.bib*
+    -   The citation applies the apa style with the file *apa.csl*
+    
+-   This is an **inline** r code
+
+    -   My age is `r year(today(tzone = 'America/Bogota')) - year(ymd('1986-05-06',tz = 'America/Bogota'))` years
+
+# Heading 2
+
+- This is a table using `kableExtra`:
+
+```{r table}
+#| eval: true
+#| echo: false
+#| output: true
+economics |>
+  head(n=5) |>
+  kbl(format = 'latex', booktabs = TRUE, 
+      col.names = c('Date', 'Consumption', 'Population',
+                    'Saving rate', 'Unemployment', 'Unemployed'),
+      caption = 'US economic time series') |>
+  kable_styling(latex_options = 'striped', font_size = 7) |>
+  row_spec(row=0, bold=TRUE) |>
+  column_spec(1, bold = TRUE, color = "red")
+```
+
+# Heading 3
+
+-   This is a simple plot using `ggplot2`:
+
+```{r plot}
+#| out-width: '70%'
+#| fig-align: 'center'
+economics |>
+  ggplot() + 
+  geom_line(aes(x=date, y=pce)) + 
+  labs(x='Year',
+       y='Billions of dollars',
+       title = 'Personal consumption expenditures')
+```
+
+# Heading 4
+
+-   This is a R code chunk
+
+```{r chunk}
+#| echo: true
+# Using R as a calculator
+result <- 2 + 3
+result
+```
+
+-   This is a Python code chunk
+
+```{python}
+#| echo: true
+#  Creating a numpy array
+np_array = np.array([*range(1,4)])
+np_array
+```
+
+# Heading 5
+
+-   From R to Python
+
+```{python}
+#| echo: true
+np_array + r.result
+```
+
+-   From Python to R
+
+```{r}
+#| echo: true
+py$np_array + result
+```
+
+# References {.allowframebreaks}
