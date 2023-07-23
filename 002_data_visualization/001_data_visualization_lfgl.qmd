@@ -1,0 +1,558 @@
+---
+title: Data visualization
+author: Luis Francisco Gomez Lopez
+date: 2023-07-22
+format: 
+  beamer:
+    theme: AnnArbor
+    colortheme: dolphin
+    fonttheme: structurebold
+    link-citations: true
+    linkcolor: blue
+    include-in-header:
+      - text: |
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{multirow}
+          \usepackage{wrapfig}
+          \usepackage{float}
+          \usepackage{colortbl}
+          \usepackage{pdflscape}
+          \usepackage{tabu}
+          \usepackage{threeparttable}
+          \usepackage{threeparttablex}
+          \usepackage[normalem]{ulem}
+          \usepackage{makecell}
+          \usepackage{xcolor}
+lang: en
+bibliography: ../r_for_data_science_2_edition_umng.bib
+csl: ../apa.csl
+editor: visual
+---
+
+```{r r_libraries}
+#| eval: true
+#| echo: false
+#| output: false
+#| warning: false
+#| error: false
+library(tidyverse)
+library(palmerpenguins)
+library(ggthemes)
+library(patchwork)
+```
+
+# Contents
+
+-   Introduction
+-   First steps
+-   ggplot2 calls
+-   Visualizing distributions
+-   Visualizing relationships
+-   Saving your plots
+-   Common problems
+-   References
+
+# Introduction
+
+-   [`ggplot2`](https://ggplot2.tidyverse.org/)
+
+    -   Implements the **grammar of graphics**
+    -   If you want to learn more *ggplot2: Elegant Graphics for Data Analysis 3 edition* [@wickham_ggplot2_2023]
+
+# First steps
+
+- [`palmerpenguins`](https://allisonhorst.github.io/palmerpenguins/)
+
+    -   **species**: penguin specie (Adélie, Chinstrap and Gento)
+    -   **island**: island in Palmer Archipelago, Antarctica (Biscoe, Dream or Torgersen)
+    -   **bill_length_mm**: bill length (millimeters)
+    -   **bill_depth_mm**: bill depth (millimeters)
+    -   **flipper_length_mm**: flipper length (millimeters)
+    -   **body_mass_g**: body mass (grams) 
+    -   **sex**: penguin sex (female, male)
+    -   **year**: denoting the study year (2007, 2008, or 2009)
+    
+# First steps
+
+\tiny
+
+```{r}
+#| echo: true
+head(penguins)
+```
+
+```{r}
+#| echo: true
+glimpse(penguins)
+```
+
+# First steps
+
+```{r}
+#| echo: false
+#| out-width: '80%'
+#| fig-align: 'center'
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Body mass and flipper length",
+    subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+    x = "Flipper length (mm)",
+    y = "Body mass (g)",
+    color = "Species",
+    shape = "Species"
+  ) +
+  scale_color_colorblind()
+```
+
+# First steps
+
+![Analogy of data visualization as painting step by step (Watercolor portrait - Step by Step by Hector Trunnec (Valencia, Spain) 2015-03-03)](../000_images/002_visualization_step_by_step.jpg){#fig-r_visualization_step_by_step width="350px" height="350px"}
+
+# First steps
+
+\tiny
+
+```{r}
+#| echo: true
+#| out-width: '50%'
+#| fig-align: 'center'
+ggplot(data = penguins)
+```
+
+# First steps
+
+\tiny
+
+```{r}
+#| echo: true
+#| out-width: '50%'
+#| fig-align: 'center'
+ggplot(data = penguins,
+       mapping = aes(x = flipper_length_mm, y = body_mass_g))
+```
+
+# First steps
+
+\tiny
+
+```{r}
+#| echo: true
+#| warning: true
+#| out-width: '50%'
+#| fig-align: 'center'
+ggplot(data = penguins,
+       mapping = aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point()
+```
+
+# First steps
+
+\tiny
+
+```{r}
+#| echo: true
+#| warning: false
+#| out-width: '50%'
+#| fig-align: 'center'
+ggplot(data = penguins,
+       mapping = aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+  geom_point()
+```
+
+# First steps
+
+\tiny
+
+```{r}
+#| echo: true
+#| warning: false
+#| out-width: '50%'
+#| fig-align: 'center'
+ggplot(data = penguins,
+       mapping = aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+  geom_point() + 
+  geom_smooth(method = 'lm')
+```
+
+# First steps
+
+\tiny
+
+```{r}
+#| echo: true
+#| warning: false
+#| out-width: '50%'
+#| fig-align: 'center'
+ggplot(data = penguins,
+       mapping = aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(mapping = aes(color = species)) + 
+  geom_smooth(method = 'lm')
+```
+
+# First steps
+
+\tiny
+
+```{r}
+#| echo: true
+#| warning: false
+#| out-width: '50%'
+#| fig-align: 'center'
+ggplot(data = penguins,
+       mapping = aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(mapping = aes(color = species)) + 
+  geom_smooth(method = 'lm') +
+  labs(title = "Body mass and flipper length",
+       subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+       x = "Flipper length (mm)", 
+       y = "Body mass (g)",
+       color = "Species", 
+       shape = "Species")
+```
+
+# First steps
+
+\tiny
+
+```{r}
+#| echo: true
+#| warning: false
+#| out-width: '50%'
+#| fig-align: 'center'
+ggplot(data = penguins,
+       mapping = aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(mapping = aes(color = species)) + 
+  geom_smooth(method = 'lm') +
+  labs(title = "Body mass and flipper length",
+       subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+       x = "Flipper length (mm)", 
+       y = "Body mass (g)",
+       color = "Species", 
+       shape = "Species") +
+  scale_color_colorblind()
+```
+
+# ggplot2 calls
+
+-   **Detailed expression**
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: false
+ggplot(data = penguins,
+       mapping = aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point()
+```
+
+\normalsize
+
+-   **Concise expression**
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: false
+ggplot(penguins,
+       aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point()
+```
+
+\normalsize
+
+-   **Concise expression plus pipe (|>)**
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: false
+penguins |>
+  ggplot(aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point()
+```
+
+# Visualizing distributions
+
+-   A categorical variable
+
+\tiny
+
+```{r}
+#| echo: true
+#| out-width: '70%'
+#| fig-align: 'center'
+ggplot(penguins, aes(x = species)) +
+  geom_bar()
+```
+
+# Visualizing distributions
+
+-   A categorical variable by reordering the bars based on their frequencies
+
+\tiny
+
+```{r}
+#| echo: true
+#| out-width: '70%'
+#| fig-align: 'center'
+ggplot(penguins, aes(x = fct_infreq(species))) +
+  geom_bar()
+```
+
+# Visualizing distributions
+
+-   A numerical variable
+
+\tiny
+
+```{r}
+#| echo: true
+#| out-width: '70%'
+#| fig-align: 'center'
+ggplot(penguins, aes(x = body_mass_g)) +
+  geom_histogram(binwidth = 200, color = 'black')
+```
+
+# Visualizing distributions
+
+-   A numerical variable using a smoothed version of the histogram 
+
+\tiny
+
+```{r}
+#| echo: true
+#| warning: true
+#| out-width: '65%'
+#| fig-align: 'center'
+ggplot(penguins, aes(x = body_mass_g)) +
+    geom_density()
+```
+
+# Visualizing relationships
+
+-   Boxplot
+
+```{r}
+#| echo: false
+#| out-width: '65%'
+#| fig-align: 'center'
+body_mass_g_chinstrap <- penguins$body_mass_g[penguins$species == 'Chinstrap']
+
+quantile_25_75 <- quantile(x = body_mass_g_chinstrap, probs = c(0.25, 0.75),
+                           names = FALSE, type = 7)
+iqr <- quantile_25_75[2] - quantile_25_75[1]
+lower_bound <- quantile_25_75[1] - 1.5*iqr
+upper_bound <- quantile_25_75[2] + 1.5*iqr
+
+distribution <- ggplot(data = NULL) + 
+  geom_point(aes(x = 1, y = body_mass_g_chinstrap,
+                 color = (body_mass_g_chinstrap < lower_bound) |
+                         (body_mass_g_chinstrap > upper_bound)),
+             show.legend = FALSE) +
+  theme(axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text  = element_blank())
+
+histogram <- ggplot(data = NULL) + 
+  geom_histogram(aes(y = body_mass_g_chinstrap),
+                 color = 'black') +
+  theme(axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text  = element_blank())
+
+boxplot_distribution <- ggplot(data = NULL) + 
+  geom_boxplot(aes(x = 1, y = body_mass_g_chinstrap),
+               outlier.color = '#00BFC4') +
+  geom_point(aes(x = 1, y = body_mass_g_chinstrap,
+                 color = (body_mass_g_chinstrap < lower_bound) |
+                   (body_mass_g_chinstrap > upper_bound)),
+             show.legend = FALSE) +
+  theme(axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text  = element_blank())
+
+boxplot <- ggplot(data = NULL) + 
+  geom_boxplot(aes(x = 1, y = body_mass_g_chinstrap),
+               outlier.color = '#00BFC4') +
+  theme(axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text  = element_blank())
+
+distribution + histogram + boxplot_distribution + boxplot + plot_layout(ncol = 4)
+```
+
+
+# Visualizing relationships
+
+-   A numerical and a categorical variable
+
+\tiny
+
+```{r}
+#| echo: true
+#| warning: false
+#| out-width: '65%'
+#| fig-align: 'center'
+ggplot(penguins, aes(x = species, y = body_mass_g)) +
+  geom_boxplot()
+```
+
+# Visualizing relationships
+
+-   A numerical and a categorical variable using a smoothed version of the histogram
+
+\tiny
+
+```{r}
+#| echo: true
+#| warning: false
+#| out-width: '65%'
+#| fig-align: 'center'
+ggplot(penguins, aes(x = body_mass_g, color = species)) +
+  geom_density(linewidth = 0.75)
+```
+
+# Visualizing relationships
+
+-   A numerical and a categorical variable using a smoothed version of the histogram and applying opacity
+
+\tiny
+
+```{r}
+#| echo: true
+#| warning: false
+#| out-width: '65%'
+#| fig-align: 'center'
+ggplot(penguins, aes(x = body_mass_g, color = species, fill = species)) +
+  geom_density(alpha = 0.5)
+```
+
+# Visualizing relationships
+
+-   Two categorical variables
+
+\tiny
+
+```{r}
+#| echo: true
+#| warning: false
+#| out-width: '65%'
+#| fig-align: 'center'
+ggplot(penguins, aes(x = island, fill = species)) +
+  geom_bar(color = 'black')
+```
+
+# Visualizing relationships
+
+-   Two categorical variables and modifying position adjustment
+
+\tiny
+
+```{r}
+#| echo: true
+#| warning: false
+#| out-width: '65%'
+#| fig-align: 'center'
+ggplot(penguins, aes(x = island, fill = species)) +
+  geom_bar(position = "fill", color = 'black')
+```
+
+# Visualizing relationships
+
+-   Two numerical variables
+
+\tiny
+
+```{r}
+#| echo: true
+#| warning: false
+#| out-width: '65%'
+#| fig-align: 'center'
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point()
+```
+
+# Visualizing relationships
+
+-   Three or more variables
+
+\tiny
+
+```{r}
+#| echo: true
+#| warning: false
+#| out-width: '65%'
+#| fig-align: 'center'
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color = species, shape = island))
+```
+
+# Visualizing relationships
+
+-   Three or more variables by splitting the plot into facets
+
+\tiny
+
+```{r}
+#| echo: true
+#| warning: false
+#| out-width: '65%'
+#| fig-align: 'center'
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color = species, shape = species)) +
+  facet_wrap(facets = vars(island))
+```
+
+# Saving your plots
+
+-   `ggsave()`
+
+    -   Will save the plot most recently created to disk
+    -   Will save the plot to the working directory
+    -   `width` and `height` will be taken from the dimensions of the current plotting device
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: false
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point()
+ggsave(filename = "../000_images/002_penguin_plot.png")
+```
+
+```
+Saving 3.78 x 3.42 in image
+```
+
+
+# Common problems
+
+-   Common problem when creating `ggplot2` graphics is to put the `+` in the wrong place
+
+    -   It has to come at the end of the line, not the start
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: false
+ggplot(data = mpg)
++ geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+```
+Error in `+.gg`:
+! Cannot use `+` with a single argument
+ℹ Did you accidentally put `+` on a new line?
+Run `rlang::last_trace()` to see where the error occurred.
+```
+
+# References {.allowframebreaks}
