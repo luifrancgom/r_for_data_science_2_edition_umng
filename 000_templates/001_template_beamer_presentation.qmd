@@ -65,6 +65,7 @@ import numpy as np
 -   Heading 4
 -   Heading 5
 -   Heading 6
+-   Heading 7
 -   References
 
 # Heading 1
@@ -74,9 +75,11 @@ import numpy as np
     -   The citation use the file *r_for_data_science_2_edition_umng.bib*
     -   The citation applies the apa style with the file *apa.csl*
 
--   This is an **inline** r code
+-   This is an **inline** r code[^1]
 
     -   My age is `r year(today(tzone = 'America/Bogota')) - year(ymd('1986-05-06',tz = 'America/Bogota'))` years
+    
+[^1]: This is a footnote
 
 # Heading 2
 
@@ -122,6 +125,20 @@ economics |>
 
 # Heading 5
 
+-   This is an line equation:
+
+    -   The solution to $\sqrt{x} = 26$ is $x = 676$
+    
+-   This is a centered equation:
+
+$$\begin{split}
+  A & = \frac{\pi r^2}{2} \\
+  & = \frac{1}{2} \pi r^2
+  \end{split}
+$$
+
+# Heading 6
+
 -   This is a R code chunk
 
 ```{r r_calculator}
@@ -140,7 +157,7 @@ np_array = np.array([*range(1,4)])
 np_array
 ```
 
-# Heading 6
+# Heading 7
 
 -   From R to Python
 
