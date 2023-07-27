@@ -1,0 +1,189 @@
+---
+title: Workflow basics
+author: Luis Francisco Gomez Lopez
+date: 2023-07-26
+format: 
+  beamer:
+    theme: AnnArbor
+    colortheme: dolphin
+    fonttheme: structurebold
+    link-citations: true
+    linkcolor: blue
+    include-in-header:
+      - text: |
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{multirow}
+          \usepackage{wrapfig}
+          \usepackage{float}
+          \usepackage{colortbl}
+          \usepackage{pdflscape}
+          \usepackage{tabu}
+          \usepackage{threeparttable}
+          \usepackage{threeparttablex}
+          \usepackage[normalem]{ulem}
+          \usepackage{makecell}
+          \usepackage{xcolor}
+lang: en
+bibliography: ../r_for_data_science_2_edition_umng.bib
+csl: ../apa.csl
+editor: visual
+---
+
+```{r r_libraries}
+#| eval: true
+#| echo: false
+#| output: false
+#| warning: false
+#| error: false 
+library(tidyverse)
+library(mosaicCalc)
+```
+
+# Contents
+
+-   Coding basics
+-   Comments
+-   What's in a name?
+-   Calling functions
+-   References
+
+# Coding basics
+
+-   R as a calculator
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: true
+1 / 0
+sqrt(2)^2
+sin(pi)
+```
+
+# Coding basics
+
+-   R as a calculator
+
+    -   Calculus [@kaplan_mosaic_2022]
+
+\small
+
+$$\frac{dx^3}{dx} = 3x^2$$
+\tiny
+
+```{r}
+#| echo: true
+#| eval: true
+mosaicCalc::D(x^3 ~ x)
+```
+
+\small
+
+$$\int e^x dx = e^x + C$$
+\tiny
+
+```{r}
+#| echo: true
+#| eval: true
+mosaicCalc::antiD(exp(x) ~ x)
+```
+
+# Coding basics
+
+- Creating and **c**ombining objects
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: true
+primes <- c(2, 3, 5, 7, 11, 13)
+primes + 2
+```
+
+# Comments
+
+-   Use comments to explain the **why** of your code, not the how or the what
+
+    -   Don't describe every step in the comments
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: true
+primes
+# multiply primes by 3 to understand the concept of vectorization
+primes * 3
+```
+
+# What's in a name?
+
+-   Object names must start with a letter and can only contain letters, numbers, `_`, and `.`
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: true
+#| error: true
+1_primes <- c(2, 3, 5, 7, 11, 13)
+```
+
+\normalsize
+
+-   Use **snake_case**
+
+\tiny
+
+```
+i_use_snake_case
+otherPeopleUseCamelCase
+some.people.use.periods
+And_aFew.People_RENOUNCEconvention
+```
+
+# What's in a name?
+
+-   R is strict and case sensitive
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: true
+#| error: true
+my_variable <- 4
+myvariable
+My_variable
+```
+
+# Calling functions
+
+- Function name, arguments and values
+
+\tiny
+
+```
+function_name(argument1 = value1, argument2 = value2, ...)
+```
+
+\normalsize
+
+-   An example with `seq`
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: true
+seq(from = 2, to = 10, by = 2)
+seq(by = 2, to = 10, from = 2)
+# here we need to take into account the position of each argument
+seq(2, 10, 2)
+```
+
+# References {.allowframebreaks}
