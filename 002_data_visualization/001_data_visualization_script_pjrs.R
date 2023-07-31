@@ -1,4 +1,6 @@
 
+
+
 # Librerias ---- 
 library(tidyverse)
 library(palmerpenguins)
@@ -293,19 +295,20 @@ ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
   facet_wrap(~island)
 
 #2.5.5 Exercises
-# Which variables in mpg are categorical? Which variables are numerical?
+# 1. Which variables in mpg are categorical? Which variables are numerical?
 ?mpg #The mpg data frame that is bundled with the ggplot2 package
 View(mpg)
 
 #categorial = manufacturer, model, year, trans, drv, fl, class
 #nunmerical = displ, cyl, cty, hwy
 
-#Make a scatterplot of hwy vs. displ using the mpg data frame.
+#2. Make a scatterplot of hwy vs. displ using the mpg data frame.
 ggplot(mpg, aes(x = hwy, y = displ)) +
   geom_point()
-#Next, map a third, numerical variable to color, then size, then both color and size, then shape. 
+#3. Next, map a third, numerical variable to color, then size, then both color and size, then shape. 
 ggplot(mpg, aes(x = hwy, y = displ)) +
   geom_point(aes(color = cty))
+#4. What happens if you map the same variable to multiple aesthetics?
 
 ggplot(mpg, aes(x = hwy, y = displ)) +
   geom_point(aes(size = cty))
@@ -314,6 +317,83 @@ ggplot(mpg, aes(x = hwy, y = displ)) +
   geom_point(aes(color = cty, size = cty))
 
 ggplot(mpg, aes(x = hwy, y = displ)) +
-  geom_point(aes(color = cty, size = cty, shape = displ))
+  geom_point(aes(color = cty, size = cty, shape = fl))
 
 #How do these aesthetics behave differently for categorical vs. numerical variables?
+
+#5. Make a scatterplot of bill_depth_mm vs. bill_length_mm 
+#and color the points by species. 
+ggplot(penguins, aes(x = bill_depth_mm, y = bill_length_mm)) +
+  geom_point(aes(color = species))
+
+#What does adding coloring by species reveal about the relationship between these two variables? 
+#Es posible identificar cuáles especies tienen el pico más largo y cuáles las de mayor profundidad. 
+#Se puede ver claramente las tendencias por especie
+#What about faceting by species?
+
+#6. Why does the following yield two separate legends? 
+#utiliza dos veces aestethics color, una global y otra local. 
+#Además, la capa pide una nueva leyenda llamada "Species"
+
+ggplot(
+  data = penguins,
+  mapping = aes(
+    x = bill_length_mm, y = bill_depth_mm, 
+    color = species, shape = species
+  )
+) +
+  geom_point() +
+  labs(color = "Species")
+
+#How would you fix it to combine the two legends?
+ggplot(
+  data = penguins,
+  mapping = aes(
+    x = bill_length_mm, y = bill_depth_mm, 
+    color = species, shape = species
+  )
+) +
+  geom_point() +
+  labs()
+
+#7. Create the two following stacked bar plots. 
+
+ggplot(penguins, aes(x = island, fill = species)) +
+  geom_bar(position = "fill")
+#Which question can you answer with the first one? #What % of species was found in each island? What % of species can you find per island? 
+ggplot(penguins, aes(x = species, fill = island)) +
+  geom_bar(position = "fill")
+#Which question can you answer with the second one? what % of each species can you find in each island? 
+#I think I can answer the same question. 
+
+# 2.6 Saving your plots: ggsave()
+
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point()
+ggsave(filename = "penguin-plot.png")
+
+#2.6.1 Exercises
+# Which of the two plots is saved as mpg-plot.png? Why?
+#The last one, by default ggsave() save the last plot displayed.
+ggplot(mpg, aes(x = class)) +
+  geom_bar()
+ggplot(mpg, aes(x = cty, y = hwy)) +
+  geom_point()
+ggsave("mpg-plot.png")
+
+#What do you need to change in the code above to save the plot as a PDF instead of a PNG? 
+ggplot(mpg, aes(x = cty, y = hwy)) +
+  geom_point()
+ggsave("mpg-plot.pdf")
+#How could you find out what types of image files would work in ggsave()?
+#Reading about: "eps", "ps", "tex" (pictex), "pdf", "jpeg", "tiff", "png", "bmp", "svg" or "wmf" (windows only).
+
+#Common problems: 
+#Write ( without ) or "with no closing" 
+
+# + must be at the end of the line
+ggplot(data = mpg) 
++ geom_point(mapping = aes(x = displ, y = hwy))
+
+#You can ask fot R help by writing ?function_name in the console or F1 + the function
+#Or simply read the error message or Google it
