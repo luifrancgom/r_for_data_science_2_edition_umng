@@ -360,7 +360,7 @@ ggplot(
   geom_point() +
   labs(color = "Color por Especies", shape = "tamaño por Especies") 
 
-"por ser la variable un string str debe ir entre comillas"
+#"por ser la variable un string str debe ir entre comillas"
 
 #7. Create the two following stacked bar plots. 
 
@@ -376,7 +376,7 @@ ggplot(penguins, aes(x = species, fill = island)) +
 
 ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
   geom_point()
-ggsave(filename = "penguin-plot.png")
+ggsave(filename = "000_images/002_penguin_plot_pjrs.png")
 
 #2.6.1 Exercises
 # Which of the two plots is saved as mpg-plot.png? Why?
@@ -385,21 +385,21 @@ ggplot(mpg, aes(x = class)) +
   geom_bar()
 ggplot(mpg, aes(x = cty, y = hwy)) +
   geom_point()
-ggsave("mpg-plot.png")
+    ggsave(filename = "000_images/002_mpg_plot_pjrs.png")
 
 #What do you need to change in the code above to save the plot as a PDF instead of a PNG? 
 ggplot(mpg, aes(x = cty, y = hwy)) +
   geom_point()
-ggsave("mpg-plot.pdf")
+ggsave(filename = "000_images/002_mpg-plot_pjrs.pdf")
 #How could you find out what types of image files would work in ggsave()?
 #Reading about: "eps", "ps", "tex" (pictex), "pdf", "jpeg", "tiff", "png", "bmp", "svg" or "wmf" (windows only).
 
-#Common problems: 
+#2.7 Common problems: 
 #Write ( without ) or "with no closing" 
 
 # + must be at the end of the line
 ggplot(data = mpg) 
 + geom_point(mapping = aes(x = displ, y = hwy))
 
-#You can ask fot R help by writing ?function_name in the console or F1 + the function
+#You can ask for R help by writing ?function_name in the console or F1 + the function
 #Or simply read the error message or Google it
