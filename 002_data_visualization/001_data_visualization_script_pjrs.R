@@ -330,6 +330,10 @@ ggplot(penguins, aes(x = bill_depth_mm, y = bill_length_mm)) +
 #Es posible identificar cuáles especies tienen el pico más largo y cuáles las de mayor profundidad. 
 #Se puede ver claramente las tendencias por especie
 #What about faceting by species?
+ggplot(penguins, aes(x = bill_depth_mm, y = bill_length_mm)) +
+  geom_point(aes(color = species)) +
+  facet_wrap(~species)
+#la capa separa el gráfico por secciones, especies en este caso
 
 #6. Why does the following yield two separate legends? 
 #utiliza dos veces aestethics color, una global y otra local. 
@@ -354,17 +358,19 @@ ggplot(
   )
 ) +
   geom_point() +
-  labs()
+  labs(color = "Color por Especies", shape = "tamaño por Especies") 
+
+"por ser la variable un string str debe ir entre comillas"
 
 #7. Create the two following stacked bar plots. 
 
 ggplot(penguins, aes(x = island, fill = species)) +
   geom_bar(position = "fill")
-#Which question can you answer with the first one? #What % of species was found in each island? What % of species can you find per island? 
+#Which question can you answer with the first one? #What % of species was found in each island? 
 ggplot(penguins, aes(x = species, fill = island)) +
   geom_bar(position = "fill")
-#Which question can you answer with the second one? what % of each species can you find in each island? 
-#I think I can answer the same question. 
+#Which question can you answer with the second one? what % por specie en cada isla 
+
 
 # 2.6 Saving your plots: ggsave()
 
