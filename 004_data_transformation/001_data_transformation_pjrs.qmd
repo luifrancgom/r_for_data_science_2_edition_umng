@@ -1,0 +1,30 @@
+---
+title: "Data transformation"
+author: "Patricia Rodríguez-Sánchez"
+date: 2023-08-07
+institute: UMNG
+lang: en
+format: 
+  beamer:
+    number-sections: true 
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+```
+
+# Introduction
+
+jksdkjaskfjsdkfjd
+
+# Section 2
+
+```{r echo=TRUE,out.width="60%"}
+ggplot(mpg, aes(x = cty, y = hwy)) +
+  geom_point()
+```
+
+\#
+
+# References
