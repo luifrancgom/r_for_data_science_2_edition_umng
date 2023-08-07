@@ -10,21 +10,57 @@ format:
 editor: visual
 ---
 
-```{r}
+```{r echo=TRUE}
+library(tidyverse)
+
+```
+
+# Table of contents
+
+4.1 Introduction
+
+Functions that operate on rows and then columns of a data frame
+
+The pipe, an important tool that you use to combine verbs.
+
+The ability to work with groups.
+
+Case study
+
+# 4.1. Introduction
+
+Theme: data transformation
+
+Objective: learn key tools for transforming a data frame
+
+Package of tidyverse: **dplyr**
+
+Dataset: flights that departed from New York City in 2013
+
+## 4.1.1 Package dplyr
+
+```{r echo=TRUE}
+library(nycflights13)
 library(tidyverse)
 ```
 
-# Introduction
+```         
+tidyverse_conflicts() ── 
+dplyr::filter() masks stats::filter() 
+dplyr::lag()    masks stats::lag() 
 
-jksdkjaskfjsdkfjd
-
-# Section 2
-
-```{r echo=TRUE,out.width="60%"}
-ggplot(mpg, aes(x = cty, y = hwy)) +
-  geom_point()
+This means dplyr overwrites some functions in base R. 
+We’ll use the same syntax as R: packagename::functionname().
 ```
 
-\#
+## 4.1.2 **nycflights13**
+
+To explore the basic dplyr verbs, we\'re going to use [`nycflights13::flights`](https://rdrr.io/pkg/nycflights13/man/flights.html)
+
+```{r echo=TRUE}
+nycflights13::flights
+
+?flights
+```
 
 # References
