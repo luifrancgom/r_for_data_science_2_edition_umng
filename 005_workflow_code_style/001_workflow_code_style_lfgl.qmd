@@ -1,0 +1,240 @@
+---
+title: 'Workflow: code style'
+author: Luis Francisco Gomez Lopez
+date: 2023-08-16
+format: 
+  beamer:
+    theme: AnnArbor
+    colortheme: dolphin
+    fonttheme: structurebold
+    link-citations: true
+    linkcolor: blue
+    include-in-header:
+      - text: |
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{multirow}
+          \usepackage{wrapfig}
+          \usepackage{float}
+          \usepackage{colortbl}
+          \usepackage{pdflscape}
+          \usepackage{tabu}
+          \usepackage{threeparttable}
+          \usepackage{threeparttablex}
+          \usepackage[normalem]{ulem}
+          \usepackage{makecell}
+          \usepackage{xcolor}
+lang: en
+bibliography: ../r_for_data_science_2_edition_umng.bib
+csl: ../apa.csl
+editor: visual
+---
+
+```{r r_libraries}
+#| eval: true
+#| echo: false
+#| output: false
+#| warning: false
+#| error: false 
+library(tidyverse)
+library(nycflights13)
+```
+
+# Contents
+
+-   Names
+-   Spaces
+-   Pipes
+-   ggplot2
+-   References
+
+# Names
+
+-   Must start with a letter
+
+    -   It is recommend to use only **ASCII** lower letters
+    
+    -   You can use for example Ã, ã, Á, á, À, à, Ç, ç, Ü or ü but it is not a good practice
+    
+-   Should use only lowercase letters, numbers, and _
+
+-   As a general rule of thumb it's better to prefer long and descriptive names that are easy to understand
+
+-   If you have a bunch of names for related things, do your best to be consistent
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: false 
+
+# Strive for:
+short_flights <- flights |> filter(air_time < 60)
+
+# Avoid:
+ShfLÍ <- flights |> filter(air_time < 60)
+```
+
+# Spaces
+
+-   Put spaces on either side of mathematical operators $+,-,==, <,\ldots$
+
+    -   The exception is $\;\^$
+    
+\tiny
+
+```{r}
+#| echo: true
+#| eval: false
+
+# Strive for
+z <- (a + b)^2 / d
+
+# Avoid
+z<-( a + b ) ^ 2/d
+```
+
+\normalsize
+
+-   Don't put spaces inside or outside parentheses for regular function calls
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: false
+
+# Strive for
+mean(x, na.rm = TRUE)
+
+# Avoid
+mean (x ,na.rm=TRUE)
+```
+
+# Spaces
+
+-   You can add extra spaces if it improves alignment but it is not mandatory
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: false
+flights |>
+  mutate(
+    speed      = (distance * 1.609344) / (air_time / 60),
+    dep_hour   = dep_time %/% 100, # integer division
+    dep_minute = dep_time %% 100 # modulus
+  )
+```
+
+# Pipes
+
+-   $\text{|> }$ should always have a space before it and should typically be the last thing on a line
+
+    -   Easier to add new steps
+    -   Rearrange existing steps
+    -   Modify elements within a step
+    -   Bird's eye view by skimming the verbs on the left-hand side
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: false
+
+# Strive for 
+flights |>  
+  filter(!is.na(arr_delay), !is.na(tailnum)) |> 
+  count(dest)
+
+# Avoid
+flights|>filter(!is.na(arr_delay), !is.na(tailnum))|>count(dest)
+```
+
+# Pipes
+
+-   If the arguments to a function don’t all fit on one line, put each argument on its own line and indent [@alexander_wickham_tidyverse_2022, Chapter 4]
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: false
+
+# Strive for 
+flights |>  
+  group_by(tailnum) |> 
+  summarize(
+    delay = mean(arr_delay, na.rm = TRUE),
+    n = n()
+  )
+
+# Avoid
+flights|>
+  group_by(tailnum) |> 
+  summarize(
+             delay = mean(arr_delay, na.rm = TRUE), 
+             n = n()
+           )
+
+# Avoid
+flights|>
+  group_by(tailnum) |> 
+  summarize(
+  delay = mean(arr_delay, na.rm = TRUE), 
+  n = n()
+  )
+```
+
+# ggplot2
+
+-   The same basic rules that apply to $\text{|> }$ also apply to `ggplot2` so treat $+$ the same way as $\text{ |>}$
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: false
+
+flights |> 
+  group_by(dest) |> 
+  summarize(
+    distance = mean(distance),
+    speed = mean(distance / air_time, na.rm = TRUE)
+  ) |> 
+  ggplot(aes(x = distance, y = speed)) +
+  geom_smooth(
+    method = "loess",
+    span = 0.5,
+    se = FALSE, 
+    color = "white", 
+    linewidth = 4
+  ) +
+  geom_point()
+```
+
+# Sectioning comments
+
+-   Break up your file into manageable pieces by using sectioning comments
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: false
+
+# Libraries ----
+
+
+# Data sets ----
+
+
+# Import data ----
+        .
+        .
+        .
+```
+
+# References {.allowframebreaks}
