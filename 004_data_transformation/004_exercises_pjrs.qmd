@@ -1,0 +1,135 @@
+---
+title: "4.2.5 Exercises"
+author: "Patricia Rodriguez"
+format: pdf
+editor: visual
+---
+
+# **4.2.5 Exercises**
+
+# 1. In a single pipeline for each condition, find all flights that meet the condition:
+
+-   Had an arrival delay of two or more hours
+
+-   Flew to Houston (`IAH` or `HOU`)
+
+-   Were operated by United, American, or Delta
+
+-   Departed in summer (July, August, and September)
+
+-   Arrived more than two hours late, but didn\'t leave late
+
+1.  Were delayed by at least an hour, but made up over 30 minutes in flight
+
+    ## Had an arrival delay of two or more hours
+
+```{r echo=TRUE, eval=FALSE}
+library(nycflights13)
+library(tidyverse)
+```
+
+```{r echo=TRUE, eval=TRUE}
+nycflights13::flights
+
+flights |> 
+  filter(arr_delay >= 120) 
+```
+
+## Flew to Houston (IAH or HOU)
+
+```{r}
+?flights
+```
+
+```{r}
+View(flights)
+```
+
+```{r echo=TRUE}
+flights |> 
+  distinct(dest == HOU, .keep_all = TRUE) 
+```
+
+```{r echo=TRUE}
+flights |> 
+  distinct(dest == IAH, .keep_all = TRUE) 
+```
+
+## Were operated by United, American, or Delta
+
+```{r echo=TRUE}
+flights |> 
+  distinct(carrier == UA | AA |DL, .keep_all = TRUE)
+```
+
+## Departed in summer (July, August, and September)
+
+```{r echo=TRUE} #por qué no sale?}
+flights |> 
+  distinct(month == 7 | month == 8 | month == 9, .keep_all = TRUE)
+```
+
+```{r}
+flights |> 
+  count(month == 7 | month == 8 | month == 9, sort = TRUE)
+```
+
+## Arrived more than two hours late, but didn\'t leave late
+
+```{r echo=TRUE, eval=TRUE}
+flights |> 
+  filter(arr_delay >= 120 & sched_dep_time <= dep_time)
+```
+
+## Were delayed by at least an hour, but made up over 30 minutes in flight
+
+```{r echo=TRUE, eval=TRUE}
+flights |> 
+  filter(dep_delay >= 60 & air_time > 30)
+```
+
+# 2. Sort `flights` to find the flights with longest departure delays. Find the flights that left earliest in the morning
+
+```{r echo=TRUE}
+
+flights |> 
+  arrange((dep_delay))
+```
+
+```{r echo=TRUE}
+flights |> 
+  arrange(desc(dep_time< 1200))
+```
+
+# 3. Sort `flights` to find the fastest flights. (Hint: Try including a math calculation inside of your function.)
+
+```{r echo=TRUE}
+#v = d / t
+flights |> 
+  arrange(desc(distance/air_time))
+```
+
+# 4. Was there a flight on every day of 2013?
+
+```{r echo=TRUE} #no sé cómo}
+flights |> 
+  arrange(year == 2013, day == 0)
+```
+
+## 5. Which flights traveled the farthest distance? Which traveled the least distance?
+
+```{r echo=TRUE}
+#v = d / t
+flights |> 
+  arrange(distance)
+```
+
+```{r echo=TRUE}
+flights |> 
+  arrange(desc(distance))
+
+```
+
+## 6. Does it matter what order you used [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) and [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html) if you\'re using both? Why/why not? Think about the results and how much work the functions would have to do.
+
+`arrange() orders the dataset, filter() is used to subset. It matters the order, because arrange() works over the last subset.`
