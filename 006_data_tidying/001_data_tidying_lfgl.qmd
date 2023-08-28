@@ -1,0 +1,331 @@
+---
+title: 'Data tidying'
+author: Luis Francisco Gomez Lopez
+date: 2023-08-23
+format: 
+  beamer:
+    theme: AnnArbor
+    colortheme: dolphin
+    fonttheme: structurebold
+    link-citations: true
+    linkcolor: blue
+    include-in-header:
+      - text: |
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{multirow}
+          \usepackage{wrapfig}
+          \usepackage{float}
+          \usepackage{colortbl}
+          \usepackage{pdflscape}
+          \usepackage{tabu}
+          \usepackage{threeparttable}
+          \usepackage{threeparttablex}
+          \usepackage[normalem]{ulem}
+          \usepackage{makecell}
+          \usepackage{xcolor}
+lang: en
+bibliography: ../r_for_data_science_2_edition_umng.bib
+csl: ../apa.csl
+editor: visual
+---
+
+```{r r_libraries}
+#| eval: true
+#| echo: false
+#| output: false
+#| warning: false
+#| error: false 
+library(tidyverse)
+library(gapminder)
+```
+
+# Contents
+
+-   Tidy data
+-   Lengthening data
+-   Widening data
+-   References
+
+# Tidy data
+
+The concept of tidy data is describe in [@wickham_tidy_2014]:
+
+-   Each type of observational unit forms a table
+-   Each variable in a table is a column
+-   Each observation in a table is a row
+-   Each value in a table is a cell
+
+![Tidy data table [@wickham_r_2023, Chapter 6, Figure 6.1]](../000_images/006_tidy_data_table.png){#fig-tidy_data_table width=400 height=400}
+
+# Tidy data
+
+-  **Table 1**: observational unit (country, year)
+
+    -   **Id**: country, year and **Variables**: continent, lifeExp, pop, gdpPercap
+
+\tiny
+
+```{r}
+#| echo: true
+gapminder::gapminder |> head(n = 3) # data set from gapminder package
+```
+
+\normalsize
+
+-   **Table 2**: observational unit (country)
+
+    -   **Id**: iso_alpha and **Variables**: country, iso_num
+
+\tiny
+
+```{r}
+#| echo: true
+gapminder::country_codes |> head(n = 3)
+```
+
+# Lengthening data
+
+-   Why data is not tidy?
+
+    -   Data is often organized to facilitate some goal other than analysis like structuring it to make data entry easy
+    
+    -   People are not familiar with the principles of tidy data
+    
+-   Some tools to make data tidy[^1]
+
+    -   `tidyr::pivot_longer`
+    -   `tidyr::pivot_wider`
+    
+[^1]: The package `tidyr`, that is included in the tidyverse, include more tools
+
+# Lengthening data
+
+-   Data in column names
+
+    -   Each row is related to a song (there is no id for each song)
+    -   `artist`, `track` and `date.entered` are variables that describe the song
+    -   `wk1` to `wk76` describe the rank of the song in each week
+    
+        -   The cell values are the `rank` of the song in each week
+
+\tiny
+
+```{r}
+#| echo: true
+tidyr::billboard |> head(n=3) # data set from tidyr package
+```
+
+# Lengthening data
+
+-   Solution to make data tidy
+
+    -   Not all songs stay in the top 100 so `NA` values are not drop but you can drop them with the option `values_drop_na = TRUE`
+
+\tiny
+
+```{r}
+#| echo: true
+billboard |>
+  pivot_longer(
+    cols = starts_with(match = "wk"), # columns to pivot
+    names_to = 'week', # variable name related to the column names
+    values_to = 'rank' # variable name related to data stored in cell values
+  )
+```
+
+# Lengthening data
+
+-   Dropping `NA` values and parsing values that are not of correct type
+
+    -   `week` is really a numeric variable
+    
+\tiny
+
+```{r}
+#| echo: true
+billboard |>
+  pivot_longer(
+    cols = starts_with(match = "wk"), # columns to pivot
+    names_to = 'week', # variable name related to the column names
+    values_to = 'rank', # variable name related to data stored in cell values
+    values_drop_na = TRUE,
+  ) |> 
+  mutate(week = readr::parse_number(week)) # parse the first number it finds
+```
+
+# Lengthening data
+
+-   How pivoting works?
+
+\tiny
+
+```{r}
+#| echo: true
+df <- tibble::tribble(
+  ~id,  ~bp1, ~bp2,
+   "A",  100,  120,
+   "B",  140,  115,
+   "C",  120,  125
+)
+
+df |>
+  pivot_longer(
+    cols = bp1:bp2,
+    names_to = "measurement",
+    values_to = "value"
+  )
+```
+
+# Lengthening data
+
+-   How pivoting works?
+
+::: {#fig-pivoting layout="[[-4,10,-2,10,-4], [-20,20,-20]]"}
+
+![ID](../000_images/006_id.png){#fig-ID}
+
+![Name](../000_images/006_name.png){#fig-name}
+
+![Value](../000_images/006_value.png){#fig-value}
+
+Pivoting
+:::
+
+# Lengthening data
+
+-   Many variables in column names: multiple pieces of information included into the column names
+
+    -   `sp_m_014 - rel_f_65`: 3 variables included into the column names (see `?tidyr::who2`)
+    
+        -   Method of diagnosis, Gender and Age group
+
+\tiny
+
+```{r}
+#| echo: true
+who2 |> head(n=5)
+```
+
+# Lengthening data
+
+-   Solution to many variables in column names
+
+\tiny
+
+```{r}
+#| echo: true
+who2 |> 
+  pivot_longer(
+    cols = !c(country, year), # an alternative to select the columns to pivot
+    names_to = c('diagnosis', 'gender', 'age_group'), # we can improve the label for the age_group 
+    names_sep = '_', 
+    values_to = 'count'  
+  )
+```
+
+# Widening data
+
+-   An observation is spread across multiple rows
+
+\tiny
+
+```{r}
+#| echo: true
+cms_patient_experience |> head(n=5)
+```
+
+# Widening data
+
+-   Solution to make data tidy
+
+\tiny
+
+```{r}
+#| echo: true
+cms_patient_experience |> 
+  pivot_wider(id_cols = starts_with(match='org'),
+              names_from = measure_cd,
+              values_from = prf_rate)
+```
+
+# Widening data
+
+-   How pivoting works?
+
+\tiny
+
+```{r}
+#| echo: true
+df <- tribble(
+  ~id, ~measurement, ~value,
+  "A",        "bp1",    100,
+  "B",        "bp1",    140,
+  "B",        "bp2",    115, 
+  "A",        "bp2",    120,
+  "A",        "bp3",    105
+)
+
+df |> 
+  pivot_wider(
+    id_cols = id, # columns that uniquely identify each observation
+    names_from = measurement,
+    values_from = value # in this case NA values are created
+  )
+```
+
+# Widening data
+
+-   How pivoting works?
+
+    -   Case where an observation has 2 values
+
+\tiny
+
+```{r}
+#| echo: true
+df <- tribble(
+  ~id, ~measurement, ~value,
+  "A",        "bp1",    100, # A measure apply to A generate 2 values
+  "A",        "bp1",    102,
+  "A",        "bp2",    120,
+  "B",        "bp1",    140, 
+  "B",        "bp2",    115
+)
+```
+
+# Widening data
+
+-   Attempting to wide the data when an observation has 2 values
+
+\tiny
+
+```{r}
+#| echo: true
+#| warning: true
+df |> 
+  pivot_wider(
+    id_cols = id,
+    names_from = measurement,
+    values_from = value
+  )
+```
+
+# Widening data
+
+-   Apply the recommendation pointed out in the warning
+
+    -   Using the recommendation we identify that patient A has to values when applying measurement bp1
+
+\tiny
+
+```{r}
+#| echo: true
+df %>%
+  dplyr::group_by(id, measurement) %>%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
+  dplyr::filter(n > 1L)
+```
+
+# References {.allowframebreaks}

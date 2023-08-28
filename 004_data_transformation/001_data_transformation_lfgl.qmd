@@ -1,0 +1,567 @@
+---
+title: Data transformation
+author: Luis Francisco Gomez Lopez
+date: 2023-08-10
+format: 
+  beamer:
+    theme: AnnArbor
+    colortheme: dolphin
+    fonttheme: structurebold
+    link-citations: true
+    linkcolor: blue
+    include-in-header:
+      - text: |
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{multirow}
+          \usepackage{wrapfig}
+          \usepackage{float}
+          \usepackage{colortbl}
+          \usepackage{pdflscape}
+          \usepackage{tabu}
+          \usepackage{threeparttable}
+          \usepackage{threeparttablex}
+          \usepackage[normalem]{ulem}
+          \usepackage{makecell}
+          \usepackage{xcolor}
+lang: en
+bibliography: ../r_for_data_science_2_edition_umng.bib
+csl: ../apa.csl
+editor: visual
+---
+
+```{r r_libraries}
+#| eval: true
+#| echo: false
+#| output: false
+#| warning: false
+#| error: false 
+library(tidyverse)
+library(nycflights13)
+```
+
+# Contents
+
+-   `dplyr` basics
+-   The pipe
+-   References
+
+# `dplyr` basics
+
+-   **Name origin**: 
+
+    -   **d**: dataframe
+    -   **plyr**: plier (pinza)
+    
+        -   Check the package hex sticker
+        -   plyr has the first package where it applies a split-apply-combine strategy [@wickham_split-apply-combine_2011]
+
+> *The d is for dataframes, the plyr is to evoke pliers. Pronounce however you like* ---- Hadley Alexander Wickham
+        
+-   **Verbs based on what they operate on**
+
+    -   Rows
+    -   Columns
+    -   Groups
+    -   Data frames [@wickham_r_2023, chapter 20]
+    
+# `dplyr` basics
+
+-   **Common elements between verbs**
+
+    -   The first argument is always a data frame
+    -   The subsequent arguments typically describe which columns to operate on, using the variable names (without quotes)
+    -   The output is always a new data frame
+    
+# `dplyr` basics
+
+-   **Rows** 
+
+    -   `dplyr::filter`
+    -   `dplyr::arrange`
+    -   `dplyr::distinct`
+    
+-   **Columns** 
+
+    -   `dplyr::mutate`
+    -   `dplyr::select`
+    -   `dplyr::rename`
+    -   `dplyr::relocate`
+
+-   **Groups**
+
+    -   `dplyr::group_by`
+    -   `dplyr::summarise`
+    -   `dplyr::ungroup`
+    
+# `dplyr` basics
+
+-   **Rows** 
+
+    -   `dplyr::filter`
+
+```{r echo=FALSE}
+x_0 <- c(0, 0, 1, 1)
+y_0 <- c(0, 1, 1, 0)
+fontface <- 'bold'
+```
+
+```{r echo=FALSE, fig.align='center', fig.height=4, fig.width=12}
+filter_label <- tibble(x = c(0.5, 1.5, 2.5, 4.5, 5.5, 6.5),
+                       y = c(4.5, 4.5, 4.5, 2.5, 2.5, 2.5),
+                       label = c('a', 'b', 'c', 'a', 'b', 'c'))
+
+tibble(x     = c(x_0, x_0 + 1, x_0 + 2,
+                 x_0, x_0 + 1, x_0 + 2,
+                 x_0, x_0 + 1, x_0 + 2,
+                 x_0, x_0 + 1, x_0 + 2,
+                 x_0 + 4, x_0 + 5, x_0 + 6,
+                 x_0 + 4, x_0 + 5, x_0 + 6), 
+       y     = c(y_0    , y_0    , y_0,
+                 y_0 + 1, y_0 + 1, y_0 + 1,
+                 y_0 + 2, y_0 + 2, y_0 + 2,
+                 y_0 + 3, y_0 + 3, y_0 + 3,
+                 y_0    , y_0    , y_0,
+                 y_0 + 1, y_0 + 1, y_0 + 1),
+       group = c(rep(1, 12), 
+                 rep(2, 12),
+                 rep(3, 12),
+                 rep(4, 12),
+                 rep(5, 12),
+                 rep(6, 12)) %>% as.character()) %>%
+  ggplot(aes(x, y)) + 
+  geom_polygon(color = "black", aes(fill = group, group = group),
+               show.legend = FALSE) +
+  geom_segment(data = tibble(x = 3.1, xend = 3.9, y = 1),
+               aes(x = x, xend = xend, y = y, yend = y), 
+               arrow = arrow(length = unit(0.1, "inches"))) +
+  geom_text(data = filter_label,
+            aes(x = x, y = y, label = label),
+            fontface = fontface) + 
+  scale_fill_manual(values = c("#a6cee3", "#1f78b4", "#b2df8a", "#33a02c",
+                               "#a6cee3", "#33a02c")) +
+  coord_fixed(ratio = 1) + 
+  theme_void()
+```
+
+\tiny
+
+```{r echo = TRUE, eval=FALSE}
+filter(data = <DATA>, <EXPRESSION RETURNING A LOGICAL VALUE>)
+```
+
+# `dplyr` basics
+
+-   **Rows** 
+
+    -   `dplyr::arrange`
+
+```{r echo=FALSE, fig.align='center', fig.height=4, fig.width=12}
+arrange_label <- tibble(x = c(0.5, 1.5, 2.5, 4.5, 5.5, 6.5),
+                        y = c(4.5, 4.5, 4.5, 4.5, 4.5, 4.5),
+                        label = c('a', 'b', 'c', 'a', 'b', 'c'))
+
+tibble(x     = c(x_0, x_0 + 1, x_0 + 2,
+                 x_0, x_0 + 1, x_0 + 2,
+                 x_0, x_0 + 1, x_0 + 2,
+                 x_0, x_0 + 1, x_0 + 2,
+                 x_0 + 4, x_0 + 5, x_0 + 6,
+                 x_0 + 4, x_0 + 5, x_0 + 6,
+                 x_0 + 4, x_0 + 5, x_0 + 6,
+                 x_0 + 4, x_0 + 5, x_0 + 6), 
+       y     = c(y_0    , y_0    , y_0,
+                 y_0 + 1, y_0 + 1, y_0 + 1,
+                 y_0 + 2, y_0 + 2, y_0 + 2,
+                 y_0 + 3, y_0 + 3, y_0 + 3,
+                 y_0    , y_0    , y_0,
+                 y_0 + 1, y_0 + 1, y_0 + 1,
+                 y_0 + 2, y_0 + 2, y_0 + 2,
+                 y_0 + 3, y_0 + 3, y_0 + 3),
+       group = c(rep(1, 12), 
+                 rep(2, 12),
+                 rep(3, 12),
+                 rep(4, 12),
+                 rep(5, 12),
+                 rep(6, 12),
+                 rep(7, 12),
+                 rep(8, 12)) %>% as.character()) %>%
+  ggplot(aes(x, y)) + 
+  geom_polygon(color = "black", aes(fill = group, group = group),
+               show.legend = FALSE) +
+  geom_segment(data = tibble(x = 3.1, xend = 3.9, y = 2),
+               aes(x = x, xend = xend, y = y, yend = y), 
+               arrow = arrow(length = unit(0.1, "inches"))) +
+  geom_text(data = arrange_label,
+            aes(x = x, y = y, label = label),
+            fontface = fontface) + 
+  scale_fill_manual(values = c("#a6cee3", "#1f78b4", "#b2df8a", "#33a02c",
+                               "#a6cee3", "#33a02c", "#1f78b4", "#b2df8a")) +
+  coord_fixed(ratio = 1) + 
+  theme_void()
+```
+
+\tiny
+
+```{r echo = TRUE, eval=FALSE}
+arrange(data = <DATA>, <VARIABLES OR FUNCTIONS APPLIED TO VARIABLES>)
+```
+
+# `dplyr` basics
+
+-   **Rows** 
+
+    -   `dplyr::distinct`
+
+```{r echo=FALSE, fig.align='center', fig.height=4, fig.width=12}
+distinct_label <- tibble(x = c(0.5, 1.5, 2.5, 4.5, 5.5, 6.5),
+                         y = c(4.5, 4.5, 4.5, 3.5, 3.5, 3.5),
+                         label = c('a', 'b', 'c', 'a', 'b', 'c'))
+
+tibble(x     = c(x_0, x_0 + 1, x_0 + 2,
+                 x_0, x_0 + 1, x_0 + 2,
+                 x_0, x_0 + 1, x_0 + 2,
+                 x_0, x_0 + 1, x_0 + 2,
+                 x_0 + 4, x_0 + 5, x_0 + 6,
+                 x_0 + 4, x_0 + 5, x_0 + 6,
+                 x_0 + 4, x_0 + 5, x_0 + 6), 
+       y     = c(y_0    , y_0    , y_0,
+                 y_0 + 1, y_0 + 1, y_0 + 1,
+                 y_0 + 2, y_0 + 2, y_0 + 2,
+                 y_0 + 3, y_0 + 3, y_0 + 3,
+                 y_0    , y_0    , y_0,
+                 y_0 + 1, y_0 + 1, y_0 + 1,
+                 y_0 + 2, y_0 + 2, y_0 + 2),
+       group = c(rep(1, 12), 
+                 rep(2, 12),
+                 rep(3, 12),
+                 rep(4, 12),
+                 rep(5, 12),
+                 rep(6, 12),
+                 rep(7, 12)) %>% as.character()) %>%
+  ggplot(aes(x, y)) + 
+  # geom_point()
+  geom_polygon(color = "black", aes(fill = group, group = group),
+               show.legend = FALSE) +
+  geom_segment(data = tibble(x = 3.1, xend = 3.9, y = 2),
+               aes(x = x, xend = xend, y = y, yend = y), 
+               arrow = arrow(length = unit(0.1, "inches"))) +
+  geom_text(data = distinct_label,
+            aes(x = x, y = y, label = label),
+            fontface = fontface) + 
+  scale_fill_manual(values = c("#1f78b4", "#1f78b4", "#b2df8a", "#33a02c",
+                               "#1f78b4", "#b2df8a", "#33a02c")) +
+  coord_fixed(ratio = 1) + 
+  theme_void()
+```
+
+\tiny
+
+```{r echo = TRUE, eval=FALSE}
+distinct(data = <DATA>, <VARIABLES>)
+```
+
+# `dplyr` basics
+
+-   **Columns** 
+
+    -   `dplyr::mutate`
+    
+```{r echo=FALSE, fig.align='center', fig.height=4, fig.width=12}
+mutate_label <- tibble(x = c(0.5, 1.5, 2.5, 4.5, 5.5, 6.5, 7.5),
+                         y = c(4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5),
+                         label = c('a', 'b', 'c', 'a', 'b', 'c', 'd'))
+
+tibble(x     = c(x_0, x_0 + 1, x_0 + 2, x_0 + 4, x_0 + 5, x_0 + 6, x_0 + 7,
+                 x_0, x_0 + 1, x_0 + 2, x_0 + 4, x_0 + 5, x_0 + 6, x_0 + 7,
+                 x_0, x_0 + 1, x_0 + 2, x_0 + 4, x_0 + 5, x_0 + 6, x_0 + 7,
+                 x_0, x_0 + 1, x_0 + 2, x_0 + 4, x_0 + 5, x_0 + 6, x_0 + 7), 
+       y     = c(y_0    , y_0    ,     y_0,     y_0,     y_0,     y_0,     y_0,
+                 y_0 + 1, y_0 + 1, y_0 + 1, y_0 + 1, y_0 + 1, y_0 + 1, y_0 + 1,
+                 y_0 + 2, y_0 + 2, y_0 + 2, y_0 + 2, y_0 + 2, y_0 + 2, y_0 + 2,
+                 y_0 + 3, y_0 + 3, y_0 + 3, y_0 + 3, y_0 + 3, y_0 + 3, y_0 + 3),
+       group = c(rep(1, 4)  , rep(2, 4) , rep(3, 4)  , rep(4, 4)  , rep(5, 4) , rep(6, 4) , rep(7, 4),
+                 rep(8, 4)  , rep(9, 4) , rep(10, 4) , rep(11, 4) , rep(12, 4), rep(13, 4), rep(14, 4),
+                 rep(15, 4) , rep(16, 4), rep(17, 4) , rep(18, 4) , rep(19, 4), rep(20, 4), rep(21, 4),
+                 rep(22, 4) , rep(23, 4), rep(24, 4) , rep(25, 4) , rep(26, 4), rep(27, 4), rep(28, 4)) %>% 
+         as.character() %>% as_factor()) %>%
+  ggplot(aes(x, y)) + 
+  geom_polygon(color = "black", aes(fill = group, group = group),
+               show.legend = FALSE) +
+  geom_segment(data = tibble(x = 3.1, xend = 3.9, y = 2),
+               aes(x = x, xend = xend, y = y, yend = y), 
+               arrow = arrow(length = unit(0.1, "inches"))) +
+  geom_text(data = mutate_label,
+            aes(x = x, y = y, label = label),
+            fontface = fontface) +
+  scale_fill_manual(values = c("#fb9a99", "#e31a1c", "#fdbf6f", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00",
+                               "#fb9a99", "#e31a1c", "#fdbf6f", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00",
+                               "#fb9a99", "#e31a1c", "#fdbf6f", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00",
+                               "#fb9a99", "#e31a1c", "#fdbf6f", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00")) +
+  coord_fixed(ratio = 1) + 
+  theme_void()
+```
+
+\tiny
+
+```{r echo = TRUE, eval=FALSE}
+mutate(data = <DATA>, <ORDERED PAIR OF NAME AND VALUE>)
+```
+
+# `dplyr` basics
+
+-   **Columns** 
+
+    -   `dplyr::select`
+    
+```{r fig.align='center', fig.height=4, fig.width=12}
+select_label <- tibble(x = c(0.5, 1.5, 2.5, 4.5),
+                       y = c(4.5, 4.5, 4.5, 4.5),
+                       label = c('a', 'b', 'c', 'b'))
+
+tibble(x     = c(x_0, x_0 + 1, x_0 + 2, x_0 + 4,
+                 x_0, x_0 + 1, x_0 + 2, x_0 + 4,
+                 x_0, x_0 + 1, x_0 + 2, x_0 + 4,
+                 x_0, x_0 + 1, x_0 + 2, x_0 + 4), 
+       y     = c(y_0    , y_0    , y_0, y_0,
+                 y_0 + 1, y_0 + 1, y_0 + 1, y_0 + 1,
+                 y_0 + 2, y_0 + 2, y_0 + 2, y_0 + 2,
+                 y_0 + 3, y_0 + 3, y_0 + 3, y_0 + 3),
+       group = c(rep(1, 4), rep(2, 4), rep(3, 4), rep(4, 4),
+                 rep(5, 4), rep(6, 4), rep(7, 4), rep(8, 4),
+                 rep(9, 4), rep(10, 4), rep(11, 4), rep(12, 4),
+                 rep(13, 4), rep(14, 4), rep(15, 4), rep(16, 4)) %>% as.character() %>% as_factor()) %>%
+  ggplot(aes(x, y)) + 
+  geom_polygon(color = "black", aes(fill = group, group = group),
+               show.legend = FALSE) +
+  geom_segment(data = tibble(x = 3.1, xend = 3.9, y = 2),
+               aes(x = x, xend = xend, y = y, yend = y), 
+               arrow = arrow(length = unit(0.1, "inches"))) +
+  geom_text(data = select_label,
+            aes(x = x, y = y, label = label),
+            fontface = fontface) +
+  scale_fill_manual(values = c("#fb9a99", "#e31a1c", "#fdbf6f", "#e31a1c",
+                               "#fb9a99", "#e31a1c", "#fdbf6f", "#e31a1c",
+                               "#fb9a99", "#e31a1c", "#fdbf6f", "#e31a1c",
+                               "#fb9a99", "#e31a1c", "#fdbf6f", "#e31a1c")) +
+  coord_fixed(ratio = 1) + 
+  theme_void()
+```
+
+\tiny
+
+```{r echo = TRUE, eval=FALSE}
+select(data = <DATA>, <VARIABLES OR EXPRESSIONS (WITHOUT QUOTATION MARKS)>)
+```
+
+# `dplyr` basics
+
+-   **Columns** 
+
+    -   `dplyr::rename`
+
+```{r fig.align='center', fig.height=4, fig.width=12}
+rename_label <- tibble(x = c(0.5, 1.5, 2.5, 4.5, 5.5, 6.5),
+                       y = c(4.5, 4.5, 4.5, 4.5, 4.5, 4.5),
+                       label = c('a', 'b', 'c', 'a', 'e', 'c'))
+
+tibble(x     = c(x_0, x_0 + 1, x_0 + 2, x_0 + 4, x_0 + 5, x_0 + 6,
+                 x_0, x_0 + 1, x_0 + 2, x_0 + 4, x_0 + 5, x_0 + 6,
+                 x_0, x_0 + 1, x_0 + 2, x_0 + 4, x_0 + 5, x_0 + 6,
+                 x_0, x_0 + 1, x_0 + 2, x_0 + 4, x_0 + 5, x_0 + 6), 
+       y     = c(y_0    , y_0    ,     y_0,     y_0,     y_0,     y_0,
+                 y_0 + 1, y_0 + 1, y_0 + 1, y_0 + 1, y_0 + 1, y_0 + 1,
+                 y_0 + 2, y_0 + 2, y_0 + 2, y_0 + 2, y_0 + 2, y_0 + 2,
+                 y_0 + 3, y_0 + 3, y_0 + 3, y_0 + 3, y_0 + 3, y_0 + 3),
+       group = c(rep(1, 4)  , rep(2, 4) , rep(3, 4)  , rep(4, 4)  , rep(5, 4) , rep(6, 4) ,
+                 rep(8, 4)  , rep(9, 4) , rep(10, 4) , rep(11, 4) , rep(12, 4), rep(13, 4),
+                 rep(15, 4) , rep(16, 4), rep(17, 4) , rep(18, 4) , rep(19, 4), rep(20, 4),
+                 rep(22, 4) , rep(23, 4), rep(24, 4) , rep(25, 4) , rep(26, 4), rep(27, 4)) %>% 
+         as.character() %>% as_factor()) %>%
+  ggplot(aes(x, y)) + 
+  geom_polygon(color = "black", aes(fill = group, group = group),
+               show.legend = FALSE) +
+  geom_segment(data = tibble(x = 3.1, xend = 3.9, y = 2),
+               aes(x = x, xend = xend, y = y, yend = y), 
+               arrow = arrow(length = unit(0.1, "inches"))) +
+  geom_text(data = rename_label,
+            aes(x = x, y = y, label = label),
+            fontface = fontface) +
+  scale_fill_manual(values = c("#fb9a99", "#e31a1c", "#fdbf6f", "#fb9a99", "#e31a1c", "#fdbf6f",
+                               "#fb9a99", "#e31a1c", "#fdbf6f", "#fb9a99", "#e31a1c", "#fdbf6f",
+                               "#fb9a99", "#e31a1c", "#fdbf6f", "#fb9a99", "#e31a1c", "#fdbf6f",
+                               "#fb9a99", "#e31a1c", "#fdbf6f", "#fb9a99", "#e31a1c", "#fdbf6f")) +
+  coord_fixed(ratio = 1) + 
+  theme_void()
+```
+
+\tiny
+
+```{r echo = TRUE, eval=FALSE}
+rename(data = <DATA>, <ORDERED PAIR OF NEW NAME AND OLD NAME>)
+```
+
+# `dplyr` basics
+
+-   **Columns** 
+
+    -   `dplyr::relocate`
+
+```{r fig.align='center', fig.height=4, fig.width=12}
+relocate_label <- tibble(x = c(0.5, 1.5, 2.5, 4.5, 5.5, 6.5),
+                       y = c(4.5, 4.5, 4.5, 4.5, 4.5, 4.5),
+                       label = c('a', 'b', 'c', 'c', 'a', 'b'))
+
+tibble(x     = c(x_0, x_0 + 1, x_0 + 2, x_0 + 4, x_0 + 5, x_0 + 6,
+                 x_0, x_0 + 1, x_0 + 2, x_0 + 4, x_0 + 5, x_0 + 6,
+                 x_0, x_0 + 1, x_0 + 2, x_0 + 4, x_0 + 5, x_0 + 6,
+                 x_0, x_0 + 1, x_0 + 2, x_0 + 4, x_0 + 5, x_0 + 6), 
+       y     = c(y_0    , y_0    ,     y_0,     y_0,     y_0,     y_0,
+                 y_0 + 1, y_0 + 1, y_0 + 1, y_0 + 1, y_0 + 1, y_0 + 1,
+                 y_0 + 2, y_0 + 2, y_0 + 2, y_0 + 2, y_0 + 2, y_0 + 2,
+                 y_0 + 3, y_0 + 3, y_0 + 3, y_0 + 3, y_0 + 3, y_0 + 3),
+       group = c(rep(1, 4)  , rep(2, 4) , rep(3, 4)  , rep(4, 4)  , rep(5, 4) , rep(6, 4) ,
+                 rep(8, 4)  , rep(9, 4) , rep(10, 4) , rep(11, 4) , rep(12, 4), rep(13, 4),
+                 rep(15, 4) , rep(16, 4), rep(17, 4) , rep(18, 4) , rep(19, 4), rep(20, 4),
+                 rep(22, 4) , rep(23, 4), rep(24, 4) , rep(25, 4) , rep(26, 4), rep(27, 4)) %>% 
+         as.character() %>% as_factor()) %>%
+  ggplot(aes(x, y)) + 
+  geom_polygon(color = "black", aes(fill = group, group = group),
+               show.legend = FALSE) +
+  geom_segment(data = tibble(x = 3.1, xend = 3.9, y = 2),
+               aes(x = x, xend = xend, y = y, yend = y), 
+               arrow = arrow(length = unit(0.1, "inches"))) +
+  geom_text(data = relocate_label,
+            aes(x = x, y = y, label = label),
+            fontface = fontface) +
+  scale_fill_manual(values = c("#fb9a99", "#e31a1c", "#fdbf6f", "#fdbf6f", "#fb9a99", "#e31a1c",
+                               "#fb9a99", "#e31a1c", "#fdbf6f", "#fdbf6f", "#fb9a99", "#e31a1c",
+                               "#fb9a99", "#e31a1c", "#fdbf6f", "#fdbf6f", "#fb9a99", "#e31a1c",
+                               "#fb9a99", "#e31a1c", "#fdbf6f", "#fdbf6f", "#fb9a99", "#e31a1c")) +
+  coord_fixed(ratio = 1) + 
+  theme_void()
+```
+
+\tiny
+    
+```{r echo = TRUE, eval=FALSE}
+relocate(data = <DATA>, <VARIABLES OR FUNCTIONS APPLIED TO VARIABLES>)
+```
+
+# `dplyr` basics
+
+-   **Groups** 
+
+    -   `dplyr::group_by` and `dplyr::ungroup_by` 
+    
+```{r fig.align='center', fig.height=4, fig.width=12}
+group_by_ungroup_label <- tibble(x = c(0.5, 1.5, 2.5, 4.5, 5.5, 6.5, 4.5, 5.5, 6.5, 8.5, 9.5, 10.5),
+                         y = c(4.5, 4.5, 4.5, 2  , 2  ,   2,   5,   5,   5, 4.5, 4.5, 4.5),
+                         label = c('a', 'b', 'c', 'a', 'b', 'c', 'a', 'b', 'c', 'a', 'b', 'c'))
+
+tibble(x     = c(x_0, x_0 + 1, x_0 + 2, x_0 + 4, x_0 + 5, x_0 + 6, x_0 + 8, x_0 + 9, x_0 + 10,
+                x_0, x_0 + 1, x_0 + 2, x_0 + 4, x_0 + 5, x_0 + 6, x_0 + 8, x_0 + 9, x_0 + 10,
+                x_0, x_0 + 1, x_0 + 2, x_0 + 4, x_0 + 5, x_0 + 6, x_0 + 8, x_0 + 9, x_0 + 10,
+                x_0, x_0 + 1, x_0 + 2, x_0 + 4, x_0 + 5, x_0 + 6, x_0 + 8, x_0 + 9, x_0 + 10), 
+      y     = c(y_0    , y_0    ,     y_0, y_0 - 0.5, y_0 - 0.5, y_0 - 0.5, y_0,        y_0,     y_0,
+                y_0 + 1, y_0 + 1, y_0 + 1, y_0 + 0.5, y_0 + 0.5, y_0 + 0.5, y_0 + 1, y_0 + 1, y_0 + 1,
+                y_0 + 2, y_0 + 2, y_0 + 2, y_0 + 2.5, y_0 + 2.5, y_0 + 2.5, y_0 + 2, y_0 + 2, y_0 + 2,
+                y_0 + 3, y_0 + 3, y_0 + 3, y_0 + 3.5, y_0 + 3.5, y_0 + 3.5, y_0 + 3, y_0 + 3, y_0 + 3),
+      group = c(rep(1, 4)  , rep(2, 4) , rep(3, 4)  , rep(4, 4)  , rep(5, 4) , rep(6, 4), rep(7, 4)  , rep(8, 4) , rep(9, 4),
+                rep(10, 4)  , rep(11, 4) , rep(12, 4) , rep(13, 4) , rep(14, 4), rep(15, 4), rep(16, 4) , rep(17, 4), rep(18, 4),
+                rep(19, 4) , rep(20, 4), rep(21, 4) , rep(22, 4) , rep(23, 4), rep(24, 4), rep(25, 4) , rep(26, 4), rep(27, 4),
+                rep(28, 4) , rep(29, 4), rep(30, 4) , rep(31, 4) , rep(32, 4), rep(33, 4), rep(34, 4) , rep(35, 4), rep(36, 4)) %>% 
+        as.character() %>% as_factor()) |> 
+  ggplot(aes(x,y)) + 
+  geom_polygon(color = "black", aes(fill = group, group = group),
+               show.legend = FALSE) +
+  geom_segment(data = tibble(x = 3.1, xend = 3.9, y = 2),
+               aes(x = x, xend = xend, y = y, yend = y), 
+               arrow = arrow(length = unit(0.1, "inches"))) +
+  geom_segment(data = tibble(x = 7.1, xend = 7.9, y = 2),
+               aes(x = x, xend = xend, y = y, yend = y), 
+               arrow = arrow(length = unit(0.1, "inches"))) +
+  geom_text(data = group_by_ungroup_label,
+            aes(x = x, y = y, label = label),
+            fontface = fontface) +
+  scale_fill_manual(values = c("#6a3d9a", "#e31a1c", "#fdbf6f", "#cab2d6", "#e31a1c", "#fdbf6f","#6a3d9a", "#e31a1c", "#fdbf6f",
+                               "#cab2d6", "#e31a1c", "#fdbf6f", "#cab2d6", "#e31a1c", "#fdbf6f","#cab2d6", "#e31a1c", "#fdbf6f",
+                               "#cab2d6", "#e31a1c", "#fdbf6f", "#6a3d9a", "#e31a1c", "#fdbf6f","#cab2d6", "#e31a1c", "#fdbf6f",
+                               "#6a3d9a", "#e31a1c", "#fdbf6f", "#6a3d9a", "#e31a1c", "#fdbf6f","#6a3d9a", "#e31a1c", "#fdbf6f")) +
+  coord_fixed(ratio = 1) +
+  theme_void()
+```
+
+\tiny
+
+```{r echo = TRUE, eval=FALSE}
+group_by(data = <DATA>, <VARIABLES>)
+```
+
+```{r echo = TRUE, eval=FALSE}
+ungroup(data = <DATA>, <VARIABLES>)
+```
+
+# `dplyr` basics
+
+-   **Groups** 
+
+    -   `dplyr::summarise`
+    
+```{r fig.align='center', fig.height=4, fig.width=12}
+summarise_label <- tibble(x = c(0.5, 1.5, 2.5, 4.5),
+                          y = c(4.5, 4.5, 4.5, 3),
+                          label = c('a', 'b', 'c', 'f'))
+
+tibble(x     = c(x_0, x_0 + 1, x_0 + 2, x_0 + 4,
+                 x_0, x_0 + 1, x_0 + 2, x_0 + 4,
+                 x_0, x_0 + 1, x_0 + 2, x_0 + 4,
+                 x_0, x_0 + 1, x_0 + 2, x_0 + 4), 
+       y     = c(y_0    , y_0    , y_0    , c(NA, NA, NA, NA),
+                 y_0 + 1, y_0 + 1, y_0 + 1, c(NA, NA, NA, NA),
+                 y_0 + 2, y_0 + 2, y_0 + 2, y_0 + 1.5,
+                 y_0 + 3, y_0 + 3, y_0 + 3, c(NA, NA, NA, NA)),
+       group = c(rep(1, 4), rep(2, 4), rep(3, 4), rep(4, 4),
+                 rep(5, 4), rep(6, 4), rep(7, 4), rep(8, 4),
+                 rep(9, 4), rep(10, 4), rep(11, 4), rep(12, 4),
+                 rep(13, 4), rep(14, 4), rep(15, 4), rep(16, 4)) %>% as.character() %>% as_factor()) %>%
+  ggplot(aes(x, y)) + 
+  geom_polygon(color = "black", aes(fill = group, group = group),
+               show.legend = FALSE) +
+  geom_segment(data = tibble(x = 3.1, xend = 3.9, y = 2),
+               aes(x = x, xend = xend, y = y, yend = y), 
+               arrow = arrow(length = unit(0.1, "inches"))) +
+  geom_text(data = summarise_label,
+            aes(x = x, y = y, label = label),
+            fontface = fontface) +
+  scale_fill_manual(values = c("#fb9a99", "#e31a1c", "#fdbf6f", NA,
+                               "#fb9a99", "#e31a1c", "#fdbf6f", NA,
+                               "#fb9a99", "#e31a1c", "#fdbf6f", "#e31a1c",
+                               "#fb9a99", "#e31a1c", "#fdbf6f", NA)) +
+  coord_fixed(ratio = 1) + 
+  theme_void()
+```
+    
+\tiny
+
+```{r echo = TRUE, eval=FALSE}
+summarise(data = <DATA>, <ORDERED PAIR OF NAME AND FUNCTION APPLIED TO A VARIABLE>)
+```
+
+# The pipe
+
+-   $\text{|> }$ is an operator to combine multiple verbs
+
+    -   $a \text{ |> } f(x)$ is interpreted as $a \text{ |> } f(x = a)$
+    -   $b \text{ |> } f(x,y)$ is interpreted as $b \text{ |> } f(x = b, y)$
+    -   $c \text{ |> } f(x) \text{ |> } g(y) \text{ |> } h(z)$ is interpreted as $h(g(f(x = c)))$
+    -   $d \text{ |> } f(x,y = \_)$ is interpreted as $f(x, y = d)$
+
+-   $\text{|> }$ make your code more readable
+
+    -   Structure sequences of data operations from left to right
+    -   Avoid nested function calls
+    -   Minimize the need for local variables and function definitions
+    -   Make it easy to add steps anywhere in the sequence of operations
+
+# References {.allowframebreaks}
