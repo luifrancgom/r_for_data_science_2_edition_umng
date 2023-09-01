@@ -1,0 +1,155 @@
+---
+title: 'Workflow: scripts and projects'
+author: Luis Francisco Gomez Lopez
+date: 2023-09-01
+format: 
+  beamer:
+    theme: AnnArbor
+    colortheme: dolphin
+    fonttheme: structurebold
+    link-citations: true
+    linkcolor: blue
+    include-in-header:
+      - text: |
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{multirow}
+          \usepackage{wrapfig}
+          \usepackage{float}
+          \usepackage{colortbl}
+          \usepackage{pdflscape}
+          \usepackage{tabu}
+          \usepackage{threeparttable}
+          \usepackage{threeparttablex}
+          \usepackage[normalem]{ulem}
+          \usepackage{makecell}
+          \usepackage{xcolor}
+lang: en
+bibliography: ../r_for_data_science_2_edition_umng.bib
+csl: ../apa.csl
+editor: visual
+---
+
+```{r r_libraries}
+#| eval: true
+#| echo: false
+#| output: false
+#| warning: false
+#| error: false 
+library(tidyverse)
+library(nycflights13)
+```
+
+# Contents
+
+-   Scripts
+-   Projects
+-   References
+
+# Scripts
+
+![Editor script pane](../000_images/007_script_ide.png){width=250 heigth=250}
+
+# Scripts
+
+-   Create script `Cmd/Ctrl + Shift + N`
+-   Run line with `Cmd/Ctrl + Enter`
+-   Run complete script `Cmd/Ctrl + Shift + S`
+
+\tiny
+
+```{r}
+#| eval: false
+#| echo: true
+not_cancelled <- flights |> 
+  filter(!is.na(dep_delay), !is.na(arr_delay))
+
+not_cancelled |> 
+  group_by(year, month, day) |> 
+  summarize(mean = mean(dep_delay))
+```
+
+# Scripts
+
+-   Diagnostics
+
+    -   Problems
+    -   Potential problems
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: false
+x ← 10
+3 == NA
+```
+
+# Scripts
+
+-   Saving and naming
+
+    -   File names should be machine readable
+    
+        -   Avoid spaces, symbols and special characters
+        -   Don't rely on case sensitivity
+        
+    -   File names should be human readable
+    
+        -   Use file names to describe what's in the file
+        
+    -   File names should play well with default ordering
+    
+        -   Start file names with numbers so that alphabetical sorting puts them in the order they get used
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: false
+000_images
+000_data_sets
+000_articles
+001_import
+002_data_wrangling
+...
+008_communication
+```
+
+# Projects
+
+-   Working directory
+
+    -   Where does your analysis live?
+    -   Fix the working directory using `R projects`
+    
+        -   `File > New Project`
+
+\tiny
+
+```{r}
+#| echo: true
+getwd()
+```
+
+\normalsize
+
+-   Specifying the relative path because the working directory is fixed using `R projects`
+
+    -   You can avoid absolute paths and share your work with others
+
+\tiny 
+
+```{r}
+#| echo: true
+#| eval: false
+ggplot(diamonds, aes(x = carat, y = price)) + 
+  geom_hex()
+ggsave("../000_images/007_diamonds.png")
+
+write_csv(diamonds, "../000_data_sets/007_diamonds.csv")
+```
+
+
+# References {.allowframebreaks}

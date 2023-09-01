@@ -27,7 +27,8 @@ flights |> filter(dest %in% c('IAH', 'HOU',
 ### Were operated by United, American, or Delta
 airlines
 
-flights |> filter(carrier %in% c('UA', 'AA', 'DL')) |> 
+flights |> 
+  filter(carrier %in% c('UA', 'AA', 'DL')) |> 
   count(carrier)
 
 ### Departed in summer (July, August, and September)
