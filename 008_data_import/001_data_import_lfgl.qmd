@@ -1,0 +1,314 @@
+---
+title: 'Data import'
+author: Luis Francisco Gomez Lopez
+date: 2023-09-01
+format: 
+  beamer:
+    theme: AnnArbor
+    colortheme: dolphin
+    fonttheme: structurebold
+    link-citations: true
+    linkcolor: blue
+    include-in-header:
+      - text: |
+          \usepackage{booktabs}
+          \usepackage{longtable}
+          \usepackage{array}
+          \usepackage{multirow}
+          \usepackage{wrapfig}
+          \usepackage{float}
+          \usepackage{colortbl}
+          \usepackage{pdflscape}
+          \usepackage{tabu}
+          \usepackage{threeparttable}
+          \usepackage{threeparttablex}
+          \usepackage[normalem]{ulem}
+          \usepackage{makecell}
+          \usepackage{xcolor}
+lang: en
+bibliography: ../r_for_data_science_2_edition_umng.bib
+csl: ../apa.csl
+editor: visual
+---
+
+```{r r_libraries}
+#| eval: true
+#| echo: false
+#| output: false
+#| warning: false
+#| error: false 
+library(tidyverse)
+library(arrow)
+```
+
+# Contents
+
+-   Reading data from a file
+-   Controlling column types
+-   Reading data from multiple files
+-   Writing to a file
+-   Data entry
+-   References
+
+# Reading data from a file
+
+-   **CSV**: comma separated values
+
+\tiny
+
+```{r}
+#| echo: true
+#| message: true
+students <- read_csv(file = '../000_data_sets/008_students.csv')
+students
+```
+
+# Reading data from a file
+
+-   Specifying `NA` values
+
+\tiny
+
+```{r}
+#| echo: true
+#| message: true
+students <- read_csv(file = '../000_data_sets/008_students.csv',
+                     na = c('', 'N/A'))
+students
+```
+
+# Reading data from a file
+
+-   Clean names with `janitor::clean_names()` 
+
+\tiny
+
+```{r}
+#| echo: true
+students <- students |> 
+  janitor::clean_names()
+students
+```
+
+# Reading data from a file
+
+-   Specify the correct column types
+
+\tiny
+
+```{r}
+#| echo: true
+students <- students |>
+  mutate(meal_plan = factor(x = meal_plan, ordered = FALSE),
+         age = parse_number(x = if_else(condition = age == 'five',
+                                                     true = '5',
+                                                     false = age)))
+students
+```
+
+# Reading data from a file
+
+-   Other arguments
+
+    -   `skip`: number of lines to skip before reading data
+    -   `colnames`: specify column names
+
+\tiny
+
+```{r}
+#| echo: true
+"The first line of metadata
+ The second line of metadata
+ x,y,z
+ 1,2,3" |> 
+  read_csv(skip = 2)
+```
+
+```{r}
+#| echo: true
+"1,2,3
+ 4,5,6" |> 
+  read_csv(col_names = c('x', 'y', 'z'))
+```
+
+# Reading data from a file
+
+-   Other file types
+
+    -   `read_csv2()`: the delimiter is `;`
+    -   `read_tsv()`: the delimiter is `\t`
+    -   `read_fwf()`: fixed-width files
+    -   `read_delim()`: any delimiter
+    
+# Controlling column types
+
+-   Guessing types: `readr` uses a heuristic to figure out the column types
+
+    -   Inspect 1000 values evenly spaced from the first to the last row
+    -   Does it contain only `F`, `T`, `FALSE`, or `TRUE` (ignoring case)? If so, it’s a logical
+    -   Does it contain only numbers (for example `1`, `-4.5`, `5e6`, `Inf`)? If so, it’s a number
+    -   Does it match the ISO8601 standard? If so, it’s a date or date-time
+    -   Otherwise, it must be a string
+        
+\tiny
+
+```{r}
+#| echo: true
+read_csv("
+  logical,numeric,date,string
+  TRUE,1,2021-01-15,abc
+  false,4.5,2021-02-15,def
+  T,Inf,2021-02-16,ghi
+")
+```
+
+# Controlling column types
+
+-   Missing values, column types, and problems
+
+\tiny
+
+```{r}
+#| echo: true
+simple_csv <- "
+  x
+  10
+  .
+  20
+  30"
+
+simple_csv |> 
+  read_csv()
+```
+
+# Controlling column types
+
+-   Missing values, column types, and problems
+
+\tiny
+
+```{r}
+#| echo: true
+#| warning: true
+my_tibble <- simple_csv |> 
+  read_csv(col_types = cols(x = col_double()))
+```
+
+```{r}
+#| echo: true
+problems(x = my_tibble)
+```
+
+```{r}
+#| echo: true
+#| warning: true
+read_csv(file = simple_csv, 
+         col_types = cols(x = col_double()), na = c('.'))
+```
+
+# Controlling column types
+
+-   Column types
+
+    -   `col_logical()`: containing only `T`, `F`, `TRUE` or `FALSE`
+    -   `col_integer()`: integers
+    -   `col_double()`: doubles 
+    -   `col_character()`: strings
+    -   `col_factor()`: factors
+    -   `col_date()`: dates with a format specification
+    -   `col_datetime()`: ISO8601 date times
+    -   `col_number()`: numbers containing a grouping mark
+    -   `col_skip()`: skip and don't import this column
+    
+# Reading data from multiple files
+
+-   Read data separated in different files and stack them on top of each other in a single data frame
+
+\tiny
+
+```{r}
+#| echo: true
+sale_files <- c('../000_data_sets/008_01-sales.csv',
+                '../000_data_sets/008_02-sales.csv',
+                '../000_data_sets/008_03-sales.csv')
+read_csv(file = sale_files, id = 'file') |> head(n = 5)
+```
+
+\normalsize
+
+-   List the files in a directory
+
+\tiny
+
+```{r}
+#| echo: true
+list.files(path = '../000_data_sets/', pattern = r'(sales\.csv$)')
+```
+
+# Writing to a file
+
+-   Write a data frame to a `csv` file 
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: false
+students |> write_csv(file = '../000_data_sets/008_students2.csv',
+                      na = '')
+```
+
+\normalsize
+
+-   Write a data frame to a single **R** object 
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: false
+students |> write_rds(file = '../000_data_sets/008_students.rds')
+```
+
+\normalsize
+
+-   Write a data frame to a `parquet`[^1] file
+
+\tiny
+
+```{r}
+#| echo: true
+#| eval: false
+students |> write_parquet(sink = '../000_data_sets/008_students.parquet')
+```
+
+[^1]: Apache Parquet is a free and open-source column-oriented data storage format in the Apache Hadoop ecosystem
+
+# Data entry
+
+-   Using a `tibble`
+
+\tiny
+
+```{r}
+#| echo: true
+tibble(x = c(1, 2, 5), 
+       y = c("h", "m", "g"),
+       z = c(0.08, 0.83, 0.60))
+```
+
+\normalsize
+
+-   Using a `tribble`: **tr**ansposed t**ibble**
+
+\tiny
+
+```{r}
+#| echo: true
+tribble(~x, ~y, ~z,
+        1, "h", 0.08,
+        2, "m", 0.83,
+        5, "g", 0.60)
+```
+
+# References {.allowframebreaks}
